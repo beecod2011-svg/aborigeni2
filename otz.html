@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Современный блок отзывов | Glassmorphism + Neomorphism</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #ffcdcd, #dce5ff, #ffcdcd);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Главный контейнер */
+        .reviews-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* СТЕКЛЯННАЯ КАРТОЧКА */
+        .glass-card-modern {
+            background: rgba(62, 8, 8, 0.2);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            border: 1px solid rgba(0, 0, 0, 0.958);
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 45px rgba(255, 0, 0, 0.3);
+        }
+
+        .glass-card-modern:hover {
+            border-color: rgba(253, 125, 125, 0.4);
+            box-shadow: 0 30px 55px rgba(138, 29, 29, 0.4);
+        }
+
+        /* Заголовок */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.8rem;
+            font-size: 1.6rem;
+            font-family:Georgia, 'Times New Roman', Times, serif;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d5eeff, #ff8686);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .section-title span {
+            font-size: 2rem;
+        }
+
+        /* Поля ввода */
+        .input-group-modern {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group-modern label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(241, 241, 241, 0.8);
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family:Georgia, 'Times New Roman', Times, serif;
+            letter-spacing: 0.5px;
+        }
+
+        .input-modern {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            background: rgba(255, 85, 85, 0.1);
+            border: 1px solid rgba(197, 176, 176, 0.2);
+            border-radius: 20px;
+            font-size: 1rem;
+            font-family:Georgia, 'Times New Roman', Times, serif;
+            color: rgb(133, 68, 68);
+            transition: all 0.3s;
+            outline: none;
+            font-family:'Courier New', Courier, monospace;
+        }
+
+
+        .input-modern:focus {
+            border-color: #ffa3a3;
+            background: rgba(255, 212, 212, 0.785);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-modern::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Звёзды */
+        .stars-modern {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            margin: 0.5rem 0;
+        }
+
+        .star-modern {
+            transition: all 0.2s ease;
+            color: rgba(251, 255, 255, 0.316);
+            cursor: pointer;
+        }
+
+        .star-modern.active {
+            color: #24fbe2;
+            text-shadow: 0 0 10px #24e9fb;
+        }
+
+        .star-modern:hover {
+            transform: scale(1.15);
+        }
+
+        /* Кнопка отправки */
+        .btn-submit-modern {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #a9ff93, #7ee386);
+            border: none;
+            border-radius: 28px;
+            color: rgb(0, 0, 0);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(38, 255, 52, 0.4);
+            gap: 0.8rem;
+        }
+
+        .btn-submit-modern:active {
+            transform: translateY(1px);
+        }
+
+        /* Статус */
+        .status-modern {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .status-success {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(131, 255, 176, 0.5);
+            color: #000000;
+        }
+
+        .status-error {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #000000;
+        }
+
+        /* Список отзывов */
+        .reviews-list-modern {
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .reviews-list-modern::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .reviews-list-modern::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .reviews-list-modern::-webkit-scrollbar-thumb {
+            background: rgba(20, 203, 57, 0.3);
+            border-radius: 10px;
+        }
+
+        /* Карточка одного отзыва */
+        .review-card-modern {
+            background: rgba(224, 200, 200, 0.05);
+            backdrop-filter: blur(4px);
+            border-radius: 24px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .review-card-modern:hover {
+            background: rgba(27, 81, 31, 0.1);
+            transform: translateX(5px);
+            border-color: rgba(139, 255, 166, 0.5);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .review-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #fff, #8ef976);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .review-stars {
+            font-size: 1rem;
+            color: #ff6565;
+            letter-spacing: 2px;
+        }
+
+        .review-text {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0.6rem 0;
+        }
+
+        .review-date {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Кнопка очистки */
+        .clear-btn-modern {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(79, 232, 82, 0.3);
+            border: 1px solid rgba(58, 227, 55, 0.5);
+            border-radius: 28px;
+            color: #81f871;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .clear-btn-modern:hover {
+            background: rgba(239, 68, 68, 0.5);
+            color: white;
+        }
+
+        /* Счётчик */
+        .counter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(87, 249, 171, 0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+         .container {
+           font-size: 40;
+         font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+         }
+
+        /* Анимация появления */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .review-card-modern {
+            animation: fadeInUp 0.4s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="reviews-container">
+        <!-- ФОРМА ОТЗЫВА -->
+        <div class="glass-card-modern">
+            <div class="section-title">
+                <span>✍️</span>
+                <span>Оставить отзыв</span>
+            </div>
+
+            <div class="input-group-modern">
+                <label>📝 Ваше рыцарское имя</label>
+                <input type="text" id="reviewName" class="input-modern" placeholder="Например: Александр" autocomplete="off">
+            </div>
+
+            <div class="input-group-modern">
+                <label>💬 Ваш рыцарский отзыв</label>
+                <input type="text" id="reviewText" class="input-modern" placeholder="Поделитесь впечатлениями..." autocomplete="off">
+            </div>
+
+            <div class="input-group-modern">
+                <label>⭐ Оценка</label>
+                <div class="stars-modern" id="starsContainer">
+                    <span class="star-modern" data-rating="1">★</span>
+                    <span class="star-modern" data-rating="2">★</span>
+                    <span class="star-modern" data-rating="3">★</span>
+                    <span class="star-modern" data-rating="4">★</span>
+                    <span class="star-modern" data-rating="5">★</span>
+                </div>
+                <input type="hidden" id="reviewRating" value="0">
+            </div>
+
+            <button class="btn-submit-modern" id="submitReviewBtn">
+                <span>📤</span> Отправить отзыв
+            </button>
+
+            <div id="statusMessage" class="status-modern"></div>
+        </div>
+
+        <!-- СПИСОК ОТЗЫВОВ -->
+        <div class="glass-card-modern">
+            <div class="section-title" style="font-size: 1.3rem; justify-content: space-between;">
+                <div style="display: flex; align-items: center;">
+                    <span>📋</span>
+                    <span>Все отзывы</span>
+                    <span class="counter-badge" id="reviewsCounter">0</span>
+                </div>
+                <button id="clearAllBtn" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem;" title="Очистить всё">🗑️</button>
+            </div>
+
+            <div id="reviewsList" class="reviews-list-modern">
+                <div style="text-align: center; padding: 2rem; opacity: 0.5;">
+                    ✨ Пока нет отзывов. Будьте первым!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ЗАГРУЗКА СОХРАНЁННЫХ ОТЗЫВОВ ==========
+        let reviews = JSON.parse(localStorage.getItem('modern_reviews')) || [];
+
+        // ========== ЗВЁЗДЫ ==========
+        let currentRating = 0;
+        const stars = document.querySelectorAll('.star-modern');
+        const ratingInput = document.getElementById('reviewRating');
+
+        function updateStarsDisplay(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                currentRating = parseInt(this.dataset.rating);
+                ratingInput.value = currentRating;
+                updateStarsDisplay(currentRating);
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const hoverRating = parseInt(this.dataset.rating);
+                stars.forEach((s, idx) => {
+                    if (idx < hoverRating) {
+                        s.style.color = '#fbbf24';
+                        s.style.textShadow = '0 0 8px #fbbf24';
+                    } else {
+                        s.style.color = 'rgba(255,255,255,0.3)';
+                        s.style.textShadow = 'none';
+                    }
+                });
+            });
+
+            star.addEventListener('mouseleave', function() {
+                stars.forEach(s => {
+                    s.style.color = '';
+                    s.style.textShadow = '';
+                });
+                updateStarsDisplay(currentRating);
+            });
+        });
+
+        // ========== ФУНКЦИЯ ОТОБРАЖЕНИЯ ВСЕХ ОТЗЫВОВ ==========
+        function displayReviews() {
+            const container = document.getElementById('reviewsList');
+            const counter = document.getElementById('reviewsCounter');
+
+            counter.innerText = reviews.length;
+
+            if (reviews.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; opacity: 0.5;">
+                        ✨ Пока нет отзывов. Будьте первым!
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = reviews.map(review => `
+                <div class="review-card-modern">
+                    <div class="review-header">
+                        <span class="review-name">${escapeHtml(review.name)}</span>
+                        <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                    </div>
+                    <div class="review-text">${escapeHtml(review.text)}</div>
+                    <div class="review-date">
+                        <span>📅</span> ${review.date}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== ПОКАЗ СООБЩЕНИЯ ==========
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-modern ${isError ? 'status-error' : 'status-success'}`;
+            
+            setTimeout(() => {
+                if (document.getElementById('statusMessage').textContent === message) {
+                    statusDiv.textContent = '';
+                    statusDiv.className = 'status-modern';
+                }
+            }, 3000);
+        }
+
+        // ========== СОХРАНЕНИЕ НОВОГО ОТЗЫВА ==========
+        function addReview() {
+            const name = document.getElementById('reviewName').value.trim();
+            const text = document.getElementById('reviewText').value.trim();
+            const rating = parseInt(document.getElementById('reviewRating').value);
+
+            // Валидация
+            if (name === '') {
+                showStatus('❌ Пожалуйста, введите ваше имя', true);
+                document.getElementById('reviewName').style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    document.getElementById('reviewName').style.borderColor = 'rgba(255,255,255,0.2)';
+                }, 2000);
+                return;
+            }
+
+            if (text === '') {
+                showStatus('❌ Пожалуйста, напишите отзыв', true);
+                document.getElementById('reviewText').style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    document.getElementById('reviewText').style.borderColor = 'rgba(255,255,255,0.2)';
+                }, 2000);
+                return;
+            }
+
+            if (rating === 0) {
+                showStatus('❌ Пожалуйста, поставьте оценку (нажмите на звёздочки)', true);
+                return;
+            }
+
+            // Создаём новый отзыв
+            const newReview = {
+                id: Date.now(),
+                name: name,
+                text: text,
+                rating: rating,
+                date: new Date().toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+            };
+
+            // Добавляем в начало массива (новые сверху)
+            reviews.unshift(newReview);
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('modern_reviews', JSON.stringify(reviews));
+
+            // Очищаем форму
+            document.getElementById('reviewName').value = '';
+            document.getElementById('reviewText').value = '';
+            document.getElementById('reviewRating').value = '0';
+            currentRating = 0;
+            updateStarsDisplay(0);
+
+            // Обновляем список
+            displayReviews();
+
+            // Показываем успех
+            showStatus('✅ Спасибо за ваш отзыв!', false);
+
+            // Анимация кнопки
+            const btn = document.getElementById('submitReviewBtn');
+            btn.style.transform = 'scale(0.97)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 150);
+        }
+
+        // ========== ОЧИСТКА ВСЕХ ОТЗЫВОВ ==========
+        function clearAllReviews() {
+            if (reviews.length === 0) return;
+            
+            if (confirm('⚠️ Вы уверены, что хотите удалить ВСЕ отзывы? Это действие нельзя отменить.')) {
+                reviews = [];
+                localStorage.setItem('modern_reviews', JSON.stringify(reviews));
+                displayReviews();
+                showStatus('🗑️ Все отзывы удалены', false);
+            }
+        }
+
+        // ========== ОБРАБОТЧИКИ ==========
+        document.getElementById('submitReviewBtn').addEventListener('click', addReview);
+        document.getElementById('clearAllBtn').addEventListener('click', clearAllReviews);
+
+        // Отправка по Enter
+        document.getElementById('reviewName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addReview();
+        });
+        document.getElementById('reviewText').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addReview();
+        });
+
+        // Инициализация
+        displayReviews();
+    </script>
+</body>
+</html>
