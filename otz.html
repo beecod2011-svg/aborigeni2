@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Живые отзывы | Google Sheets синхронизация</title>
+    <title>Живые отзывы | Глобальная синхронизация</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -48,6 +48,10 @@
             color: rgb(133, 68, 68);
             outline: none;
         }
+        .input-modern:focus {
+            border-color: #ffa3a3;
+            background: rgba(255, 212, 212, 0.785);
+        }
         .stars-modern {
             display: flex;
             gap: 0.5rem;
@@ -56,6 +60,7 @@
         }
         .star-modern { color: rgba(0,0,0,0.3); cursor: pointer; transition: all 0.2s; }
         .star-modern.active { color: #ffd700; text-shadow: 0 0 10px #ffaa00; }
+        .star-modern:hover { transform: scale(1.15); }
         .btn-submit-modern {
             width: 100%;
             padding: 0.9rem;
@@ -65,16 +70,26 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+        .btn-submit-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(38, 255, 52, 0.4);
         }
         .status-modern { margin-top: 1rem; padding: 0.75rem; border-radius: 20px; text-align: center; }
-        .status-success { background: rgba(0,0,0,0.2); border: 1px solid rgba(131,255,176,0.5); }
-        .status-error { background: rgba(0,0,0,0.2); border: 1px solid rgba(239,68,68,0.5); }
+        .status-success { background: rgba(0,0,0,0.2); border: 1px solid rgba(131,255,176,0.5); color: #000; }
+        .status-error { background: rgba(0,0,0,0.2); border: 1px solid rgba(239,68,68,0.5); color: #000; }
         .review-card-modern {
             background: rgba(224,200,200,0.05);
             backdrop-filter: blur(4px);
             border-radius: 24px;
             padding: 1.2rem;
             margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .review-card-modern:hover {
+            background: rgba(27, 81, 31, 0.1);
+            transform: translateX(5px);
         }
         .review-name { font-weight: 700; background: linear-gradient(135deg,#fff,#8ef976); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .review-stars { color: #ffd700; letter-spacing: 2px; }
@@ -84,6 +99,11 @@
         .online-dot { display: inline-block; width: 10px; height: 10px; background-color: #4caf50; border-radius: 50%; margin-right: 6px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.4; } 100% { opacity: 1; } }
         .reviews-list-modern { max-height: 450px; overflow-y: auto; }
+        .reviews-list-modern::-webkit-scrollbar { width: 6px; }
+        .reviews-list-modern::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .reviews-list-modern::-webkit-scrollbar-thumb { background: rgba(20,203,57,0.3); border-radius: 10px; }
+        .delete-btn { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 1.2rem; transition: all 0.2s; }
+        .delete-btn:hover { color: #ff6666; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -111,51 +131,21 @@
     <div class="glass-card-modern">
         <div class="section-title" style="justify-content: space-between;">
             <span>📋 Все отзывы <span id="reviewsCounter" style="background:rgba(0,0,0,0.3); padding:0.2rem 0.6rem; border-radius:20px;">0</span></span>
-            <button id="clearAllBtn" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">🗑️</button>
+            <button id="clearAllBtn" class="delete-btn" title="Очистить всё">🗑️</button>
         </div>
         <div id="reviewsList" class="reviews-list-modern">
-            <div style="text-align:center; padding:2rem;">⏳ Загрузка отзывов из облака...</div>
+            <div style="text-align:center; padding:2rem;">⏳ Загрузка отзывов...</div>
         </div>
     </div>
 </div>
 
 <script>
-    // ========== GOOGLE SHEETS КОНФИГ ==========
-    // ★★★ ВАЖНО: Подруга должна создать таблицу и вставить сюда ID ★★★
-    // Как получить: создать Google Таблицу → Нажать "Поделиться" → "Доступ по ссылке" (редактирование)
-    // ID таблицы — это часть URL: docs.google.com/spreadsheets/d/ЭТОТ_ID/edit
-    
-    const GOOGLE_SHEETS_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // ← ЗАМЕНИТЕ НА СВОЙ!
-    // Используем бесплатный API сервис sheetsu.co (не требует бекенда)
-    // Альтернатива: можно использовать sheet.best или sheetdb.io
-    
-    // Для простоты используем бесплатный сервис sheetdb.io (регистрация не нужна)
-    // Нужно сделать 2 простых шага:
-    // 1. Создать таблицу Google Sheets
-    // 2. Перейти на sheetdb.io и нажать "Create API from Google Sheet"
+    // ============================================================
+    // ВАШ РАБОЧИЙ API URL (уже вставлен)
+    // ============================================================
+    const API_URL = "https://api.sheetbest.com/sheets/c809c54c-ac4c-46a5-aa57-3c6659a9b8f2";
     
     let currentReviews = [];
-    let API_URL = "";
-    
-    // ПРОВЕРЯЕМ: если ID не заменён, показываем инструкцию
-    const isDefaultSheet = GOOGLE_SHEETS_ID === "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
-    
-    if (isDefaultSheet) {
-        document.getElementById('reviewsList').innerHTML = `
-            <div style="text-align:center; padding:2rem; background:rgba(0,0,0,0.5); border-radius:20px;">
-                🔧 <strong>Настройка глобальной синхронизации (1 минута):</strong><br><br>
-                1️⃣ <strong>Подруга создаёт Google Таблицу</strong> с колонками: <code>name, text, rating, date</code><br>
-                2️⃣ Нажимает <strong>"Поделиться"</strong> → <strong>"Доступ по ссылке"</strong> → <strong>"Редактор"</strong><br>
-                3️⃣ Копирует <strong>ID таблицы</strong> из URL<br>
-                4️⃣ Вставляет ID в переменную <strong style="color:#aaffaa;">GOOGLE_SHEETS_ID</strong> в коде<br>
-                5️⃣ Загружает страницу заново — отзывы синхронизируются!<br><br>
-                📌 <a href="https://youtu.be/watch?v=example" target="_blank" style="color:#aaffaa;">Видеоинструкция</a>
-            </div>
-        `;
-    } else {
-        // Настраиваем API через бесплатный сервис sheet.best
-        const API_URL = "https://api.sheetbest.com/sheets/c809c54c-ac4c-46a5-aa57-3c6659a9b8f2";
-    }
     
     // ЗВЁЗДЫ
     let currentRating = 0;
@@ -166,6 +156,30 @@
         star.addEventListener('click', function() {
             currentRating = parseInt(this.dataset.rating);
             ratingInput.value = currentRating;
+            stars.forEach((s, i) => {
+                if (i < currentRating) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const hoverRating = parseInt(this.dataset.rating);
+            stars.forEach((s, idx) => {
+                if (idx < hoverRating) {
+                    s.style.color = '#ffd700';
+                    s.style.textShadow = '0 0 8px #ffaa00';
+                } else {
+                    s.style.color = 'rgba(0,0,0,0.3)';
+                    s.style.textShadow = 'none';
+                }
+            });
+        });
+        
+        star.addEventListener('mouseleave', function() {
+            stars.forEach(s => {
+                s.style.color = '';
+                s.style.textShadow = '';
+            });
             stars.forEach((s, i) => {
                 if (i < currentRating) s.classList.add('active');
                 else s.classList.remove('active');
@@ -187,24 +201,32 @@
     }
     
     async function loadReviews() {
-        if (!API_URL || isDefaultSheet) return;
-        
         try {
             const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Ошибка загрузки');
             const data = await response.json();
+            
+            // Преобразуем данные из API в единый формат
             currentReviews = (data || []).map(row => ({
                 id: row.id || Math.random(),
                 name: row.name || 'Аноним',
                 text: row.text || '',
                 rating: parseInt(row.rating) || 5,
                 date: row.date || new Date().toLocaleString('ru-RU')
-            })).sort((a,b) => new Date(b.date) - new Date(a.date));
+            })).sort((a, b) => new Date(b.date) - new Date(a.date));
             
             displayReviews();
-            document.getElementById('liveIndicator')?.setAttribute('style', 'background:#4caf50');
+            
+            // Анимация индикатора
+            const indicator = document.querySelector('.online-dot');
+            if (indicator) {
+                indicator.style.opacity = '0.5';
+                setTimeout(() => { if (indicator) indicator.style.opacity = '1'; }, 300);
+            }
         } catch(e) {
             console.error('Ошибка загрузки:', e);
-            showStatus('⚠️ Ошибка загрузки отзывов', true);
+            showStatus('⚠️ Ошибка загрузки отзывов. Проверьте подключение к интернету.', true);
+            document.getElementById('reviewsList').innerHTML = '<div style="text-align:center; padding:2rem;">❌ Не удалось загрузить отзывы</div>';
         }
     }
     
@@ -220,7 +242,7 @@
         
         container.innerHTML = currentReviews.map(review => `
             <div class="review-card-modern">
-                <div class="review-header" style="display:flex; justify-content:space-between;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
                     <span class="review-name">${escapeHtml(review.name)}</span>
                     <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
                 </div>
@@ -231,84 +253,110 @@
     }
     
     async function addReview(name, text, rating) {
-        if (!API_URL || isDefaultSheet) {
-            showStatus('❌ Сначала настройте Google Sheets ID', true);
-            return false;
-        }
-        
         try {
             const newReview = {
                 name: name,
                 text: text,
                 rating: rating,
-                date: new Date().toLocaleString('ru-RU')
+                date: new Date().toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
             };
             
-            await fetch(API_URL, {
+            const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newReview)
             });
             
-            await loadReviews(); // перезагружаем
+            if (!response.ok) throw new Error('Ошибка отправки');
+            
+            await loadReviews(); // перезагружаем список
             return true;
         } catch(e) {
             console.error('Ошибка добавления:', e);
-            showStatus('❌ Ошибка при отправке', true);
+            showStatus('❌ Ошибка при отправке отзыва', true);
             return false;
         }
     }
     
     async function clearAllReviews() {
-        if (!API_URL || isDefaultSheet) return;
-        if (currentReviews.length === 0) return;
-        if (!confirm('⚠️ Удалить ВСЕ отзывы навсегда?')) return;
+        if (currentReviews.length === 0) {
+            showStatus('✨ Нет отзывов для удаления', false);
+            return;
+        }
+        if (!confirm('⚠️ ВНИМАНИЕ! Вы уверены, что хотите удалить ВСЕ отзывы? Это действие увидят все пользователи.')) return;
         
         try {
-            await fetch(API_URL, { method: 'DELETE' });
+            const response = await fetch(API_URL, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Ошибка удаления');
             await loadReviews();
-            showStatus('✅ Все отзывы удалены', false);
+            showStatus('✅ Все отзывы удалены. Изменения синхронизированы глобально', false);
         } catch(e) {
-            showStatus('❌ Ошибка удаления', true);
+            console.error('Ошибка удаления:', e);
+            showStatus('❌ Ошибка при удалении', true);
         }
     }
     
     // Обработчик отправки
-    document.getElementById('submitReviewBtn')?.addEventListener('click', async () => {
-        const name = document.getElementById('reviewName').value.trim();
-        const text = document.getElementById('reviewText').value.trim();
+    document.getElementById('submitReviewBtn').addEventListener('click', async () => {
+        const nameInput = document.getElementById('reviewName');
+        const textInput = document.getElementById('reviewText');
+        const name = nameInput.value.trim();
+        const text = textInput.value.trim();
         const rating = parseInt(ratingInput.value);
         
-        if (!name) { showStatus('❌ Введите имя', true); return; }
-        if (!text) { showStatus('❌ Напишите отзыв', true); return; }
-        if (!rating) { showStatus('❌ Поставьте оценку', true); return; }
+        if (!name) { showStatus('❌ Введите ваше имя', true); nameInput.focus(); return; }
+        if (!text) { showStatus('❌ Напишите отзыв', true); textInput.focus(); return; }
+        if (!rating) { showStatus('❌ Поставьте оценку (нажмите на звёздочки)', true); return; }
         
         const btn = document.getElementById('submitReviewBtn');
         btn.disabled = true;
         btn.style.opacity = '0.6';
+        btn.textContent = '⏳ Отправка...';
         
         const success = await addReview(name, text, rating);
         
         if (success) {
-            document.getElementById('reviewName').value = '';
-            document.getElementById('reviewText').value = '';
+            nameInput.value = '';
+            textInput.value = '';
             ratingInput.value = '0';
             currentRating = 0;
             stars.forEach(s => s.classList.remove('active'));
-            showStatus('✅ Отзыв отправлен! Теперь его увидят все пользователи!', false);
+            showStatus('✅ Отзыв отправлен! Теперь его увидят все пользователи по всему миру!', false);
         }
         
         btn.disabled = false;
         btn.style.opacity = '1';
+        btn.textContent = '📤 Отправить (увидят все!)';
     });
     
-    document.getElementById('clearAllBtn')?.addEventListener('click', clearAllReviews);
+    document.getElementById('clearAllBtn').addEventListener('click', clearAllReviews);
     
-    // Автообновление каждые 5 секунд
-    if (!isDefaultSheet) {
-        loadReviews();
-        setInterval(loadReviews, 5000);
+    // Enter для отправки
+    const nameField = document.getElementById('reviewName');
+    const textField = document.getElementById('reviewText');
+    
+    function handleEnter(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('submitReviewBtn').click();
+        }
     }
+    nameField.addEventListener('keypress', handleEnter);
+    textField.addEventListener('keypress', handleEnter);
+    
+    // Загружаем отзывы при старте
+    loadReviews();
+    
+    // Автообновление каждые 3 секунды (почти реальное время)
+    setInterval(loadReviews, 3000);
+    
+    console.log('✅ Система отзывов готова! URL:', API_URL);
 </script>
 </body>
 </html>
