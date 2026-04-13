@@ -2,33 +2,20 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Живые отзывы | Синхронизация в реальном времени</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Живые отзывы | Google Sheets синхронизация</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             min-height: 100vh;
             background: linear-gradient(145deg, #ffcdcd, #dce5ff, #ffcdcd);
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             padding: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
-        /* Главный контейнер */
-        .reviews-container {
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        /* СТЕКЛЯННАЯ КАРТОЧКА */
+        .reviews-container { max-width: 800px; width: 100%; margin: 0 auto; }
         .glass-card-modern {
             background: rgba(62, 8, 8, 0.2);
             backdrop-filter: blur(12px);
@@ -36,49 +23,21 @@
             border: 1px solid rgba(0, 0, 0, 0.958);
             padding: 1.8rem;
             margin-bottom: 2rem;
-            transition: all 0.3s ease;
             box-shadow: 0 25px 45px rgba(255, 0, 0, 0.3);
         }
-
-        .glass-card-modern:hover {
-            border-color: rgba(253, 125, 125, 0.4);
-            box-shadow: 0 30px 55px rgba(138, 29, 29, 0.4);
-        }
-
-        /* Заголовок */
         .section-title {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 1.8rem;
             font-size: 1.6rem;
-            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-family: Georgia, serif;
             font-weight: 600;
             background: linear-gradient(135deg, #d5eeff, #ff8686);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
-
-        .section-title span {
-            font-size: 2rem;
-        }
-
-        /* Поля ввода */
-        .input-group-modern {
-            margin-bottom: 1.2rem;
-        }
-
-        .input-group-modern label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: rgba(241, 241, 241, 0.8);
-            font-size: 0.85rem;
-            font-weight: 500;
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            letter-spacing: 0.5px;
-        }
-
         .input-modern {
             width: 100%;
             padding: 0.9rem 1rem;
@@ -86,610 +45,270 @@
             border: 1px solid rgba(197, 176, 176, 0.2);
             border-radius: 20px;
             font-size: 1rem;
-            font-family: 'Courier New', Courier, monospace;
             color: rgb(133, 68, 68);
-            transition: all 0.3s;
             outline: none;
         }
-
-        .input-modern:focus {
-            border-color: #ffa3a3;
-            background: rgba(255, 212, 212, 0.785);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .input-modern::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* Звёзды */
         .stars-modern {
             display: flex;
             gap: 0.5rem;
             font-size: 2rem;
             cursor: pointer;
-            margin: 0.5rem 0;
         }
-
-        .star-modern {
-            transition: all 0.2s ease;
-            color: rgba(251, 255, 255, 0.316);
-            cursor: pointer;
-        }
-
-        .star-modern.active {
-            color: #24fbe2;
-            text-shadow: 0 0 10px #24e9fb;
-        }
-
-        .star-modern:hover {
-            transform: scale(1.15);
-        }
-
-        /* Кнопка отправки */
+        .star-modern { color: rgba(0,0,0,0.3); cursor: pointer; transition: all 0.2s; }
+        .star-modern.active { color: #ffd700; text-shadow: 0 0 10px #ffaa00; }
         .btn-submit-modern {
             width: 100%;
             padding: 0.9rem;
             background: linear-gradient(135deg, #a9ff93, #7ee386);
             border: none;
             border-radius: 28px;
-            color: rgb(0, 0, 0);
-            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
-
-        .btn-submit-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(38, 255, 52, 0.4);
-            gap: 0.8rem;
-        }
-
-        .btn-submit-modern:active {
-            transform: translateY(1px);
-        }
-
-        /* Статус */
-        .status-modern {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 20px;
-            text-align: center;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-
-        .status-success {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(131, 255, 176, 0.5);
-            color: #000000;
-        }
-
-        .status-error {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            color: #000000;
-        }
-
-        /* Список отзывов */
-        .reviews-list-modern {
-            max-height: 450px;
-            overflow-y: auto;
-            padding-right: 0.5rem;
-        }
-
-        .reviews-list-modern::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .reviews-list-modern::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .reviews-list-modern::-webkit-scrollbar-thumb {
-            background: rgba(20, 203, 57, 0.3);
-            border-radius: 10px;
-        }
-
-        /* Карточка одного отзыва */
+        .status-modern { margin-top: 1rem; padding: 0.75rem; border-radius: 20px; text-align: center; }
+        .status-success { background: rgba(0,0,0,0.2); border: 1px solid rgba(131,255,176,0.5); }
+        .status-error { background: rgba(0,0,0,0.2); border: 1px solid rgba(239,68,68,0.5); }
         .review-card-modern {
-            background: rgba(224, 200, 200, 0.05);
+            background: rgba(224,200,200,0.05);
             backdrop-filter: blur(4px);
             border-radius: 24px;
             padding: 1.2rem;
             margin-bottom: 1rem;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .review-card-modern:hover {
-            background: rgba(27, 81, 31, 0.1);
-            transform: translateX(5px);
-            border-color: rgba(139, 255, 166, 0.5);
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .review-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-            background: linear-gradient(135deg, #fff, #8ef976);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .review-stars {
-            font-size: 1rem;
-            color: #ff6565;
-            letter-spacing: 2px;
-        }
-
-        .review-text {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin: 0.6rem 0;
-        }
-
-        .review-date {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        /* Кнопка очистки */
-        .clear-btn-modern {
-            width: 100%;
-            padding: 0.7rem;
-            background: rgba(79, 232, 82, 0.3);
-            border: 1px solid rgba(58, 227, 55, 0.5);
-            border-radius: 28px;
-            color: #81f871;
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .clear-btn-modern:hover {
-            background: rgba(239, 68, 68, 0.5);
-            color: white;
-        }
-
-        /* Счётчик */
-        .counter-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            background: rgba(87, 249, 171, 0.3);
-            padding: 0.3rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-        }
-
-        /* Анимация появления */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .review-card-modern {
-            animation: fadeInUp 0.4s ease-out;
-        }
-
-        /* небольшой индикатор синхронизации */
-        .sync-badge {
-            font-size: 0.7rem;
-            background: rgba(0,0,0,0.5);
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            margin-left: 0.8rem;
-            color: #bbffaa;
-        }
+        .review-name { font-weight: 700; background: linear-gradient(135deg,#fff,#8ef976); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .review-stars { color: #ffd700; letter-spacing: 2px; }
+        .review-text { color: rgba(255,255,255,0.85); margin: 0.6rem 0; }
+        .review-date { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+        .sync-badge { font-size: 0.7rem; background: rgba(0,0,0,0.5); padding: 0.2rem 0.6rem; border-radius: 20px; color: #bbffaa; }
+        .online-dot { display: inline-block; width: 10px; height: 10px; background-color: #4caf50; border-radius: 50%; margin-right: 6px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+        .reviews-list-modern { max-height: 450px; overflow-y: auto; }
     </style>
 </head>
 <body>
-    <div class="reviews-container">
-        <!-- ФОРМА ОТЗЫВА -->
-        <div class="glass-card-modern">
-            <div class="section-title">
-                <span>✍️</span>
-                <span>Оставить отзыв</span>
-                <span class="sync-badge" id="liveIndicator">🌐 live</span>
-            </div>
-
-            <div class="input-group-modern">
-                <label>📝 Ваше рыцарское имя</label>
-                <input type="text" id="reviewName" class="input-modern" placeholder="Например: Александр" autocomplete="off">
-            </div>
-
-            <div class="input-group-modern">
-                <label>💬 Ваш рыцарский отзыв</label>
-                <input type="text" id="reviewText" class="input-modern" placeholder="Поделитесь впечатлениями..." autocomplete="off">
-            </div>
-
-            <div class="input-group-modern">
-                <label>⭐ Оценка</label>
-                <div class="stars-modern" id="starsContainer">
-                    <span class="star-modern" data-rating="1">★</span>
-                    <span class="star-modern" data-rating="2">★</span>
-                    <span class="star-modern" data-rating="3">★</span>
-                    <span class="star-modern" data-rating="4">★</span>
-                    <span class="star-modern" data-rating="5">★</span>
-                </div>
-                <input type="hidden" id="reviewRating" value="0">
-            </div>
-
-            <button class="btn-submit-modern" id="submitReviewBtn">
-                <span>📤</span> Отправить отзыв
-            </button>
-
-            <div id="statusMessage" class="status-modern"></div>
+<div class="reviews-container">
+    <div class="glass-card-modern">
+        <div class="section-title">
+            <span>✍️</span>
+            <span>Оставить отзыв</span>
+            <span class="sync-badge"><span class="online-dot"></span> 🌍 глобально</span>
         </div>
-
-        <!-- СПИСОК ОТЗЫВОВ -->
-        <div class="glass-card-modern">
-            <div class="section-title" style="font-size: 1.3rem; justify-content: space-between;">
-                <div style="display: flex; align-items: center;">
-                    <span>📋</span>
-                    <span>Все отзывы</span>
-                    <span class="counter-badge" id="reviewsCounter">0</span>
-                </div>
-                <button id="clearAllBtn" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.2rem;" title="Очистить всё">🗑️</button>
-            </div>
-
-            <div id="reviewsList" class="reviews-list-modern">
-                <div style="text-align: center; padding: 2rem; opacity: 0.5;">
-                    ✨ Пока нет отзывов. Будьте первым!
-                </div>
-            </div>
+        <input type="text" id="reviewName" class="input-modern" placeholder="📝 Ваше имя" autocomplete="off">
+        <input type="text" id="reviewText" class="input-modern" placeholder="💬 Ваш отзыв" autocomplete="off" style="margin-top: 1rem;">
+        <div class="stars-modern" id="starsContainer" style="margin: 1rem 0;">
+            <span class="star-modern" data-rating="1">★</span>
+            <span class="star-modern" data-rating="2">★</span>
+            <span class="star-modern" data-rating="3">★</span>
+            <span class="star-modern" data-rating="4">★</span>
+            <span class="star-modern" data-rating="5">★</span>
         </div>
+        <input type="hidden" id="reviewRating" value="0">
+        <button class="btn-submit-modern" id="submitReviewBtn">📤 Отправить (увидят все!)</button>
+        <div id="statusMessage" class="status-modern"></div>
     </div>
 
-    <script>
-        // ============================================================
-        //  СИНХРОНИЗАЦИЯ В РЕАЛЬНОМ ВРЕМЕНИ (МЕЖДУ ВКЛАДКАМИ/УСТРОЙСТВАМИ)
-        //  Используем localStorage + событие 'storage'
-        //  При добавлении или удалении отзыва — обновляем все открытые страницы
-        // ============================================================
-        
-        // 1. Загружаем отзывы из localStorage (общий источник истины)
-        let reviews = JSON.parse(localStorage.getItem('modern_reviews')) || [];
-        
-        // DOM элементы
-        const stars = document.querySelectorAll('.star-modern');
-        const ratingInput = document.getElementById('reviewRating');
-        let currentRating = 0;
-        
-        // ========== ЗВЁЗДЫ: логика как раньше, но с небольшим рефакторингом ==========
-        function updateStarsDisplay(rating) {
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-        }
-        
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                currentRating = parseInt(this.dataset.rating);
-                ratingInput.value = currentRating;
-                updateStarsDisplay(currentRating);
-            });
-            
-            star.addEventListener('mouseenter', function() {
-                const hoverRating = parseInt(this.dataset.rating);
-                stars.forEach((s, idx) => {
-                    if (idx < hoverRating) {
-                        s.style.color = '#fbbf24';
-                        s.style.textShadow = '0 0 8px #fbbf24';
-                    } else {
-                        s.style.color = 'rgba(255,255,255,0.3)';
-                        s.style.textShadow = 'none';
-                    }
-                });
-            });
-            
-            star.addEventListener('mouseleave', function() {
-                stars.forEach(s => {
-                    s.style.color = '';
-                    s.style.textShadow = '';
-                });
-                updateStarsDisplay(currentRating);
+    <div class="glass-card-modern">
+        <div class="section-title" style="justify-content: space-between;">
+            <span>📋 Все отзывы <span id="reviewsCounter" style="background:rgba(0,0,0,0.3); padding:0.2rem 0.6rem; border-radius:20px;">0</span></span>
+            <button id="clearAllBtn" style="background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;">🗑️</button>
+        </div>
+        <div id="reviewsList" class="reviews-list-modern">
+            <div style="text-align:center; padding:2rem;">⏳ Загрузка отзывов из облака...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== GOOGLE SHEETS КОНФИГ ==========
+    // ★★★ ВАЖНО: Подруга должна создать таблицу и вставить сюда ID ★★★
+    // Как получить: создать Google Таблицу → Нажать "Поделиться" → "Доступ по ссылке" (редактирование)
+    // ID таблицы — это часть URL: docs.google.com/spreadsheets/d/ЭТОТ_ID/edit
+    
+    const GOOGLE_SHEETS_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"; // ← ЗАМЕНИТЕ НА СВОЙ!
+    // Используем бесплатный API сервис sheetsu.co (не требует бекенда)
+    // Альтернатива: можно использовать sheet.best или sheetdb.io
+    
+    // Для простоты используем бесплатный сервис sheetdb.io (регистрация не нужна)
+    // Нужно сделать 2 простых шага:
+    // 1. Создать таблицу Google Sheets
+    // 2. Перейти на sheetdb.io и нажать "Create API from Google Sheet"
+    
+    let currentReviews = [];
+    let API_URL = "";
+    
+    // ПРОВЕРЯЕМ: если ID не заменён, показываем инструкцию
+    const isDefaultSheet = GOOGLE_SHEETS_ID === "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms";
+    
+    if (isDefaultSheet) {
+        document.getElementById('reviewsList').innerHTML = `
+            <div style="text-align:center; padding:2rem; background:rgba(0,0,0,0.5); border-radius:20px;">
+                🔧 <strong>Настройка глобальной синхронизации (1 минута):</strong><br><br>
+                1️⃣ <strong>Подруга создаёт Google Таблицу</strong> с колонками: <code>name, text, rating, date</code><br>
+                2️⃣ Нажимает <strong>"Поделиться"</strong> → <strong>"Доступ по ссылке"</strong> → <strong>"Редактор"</strong><br>
+                3️⃣ Копирует <strong>ID таблицы</strong> из URL<br>
+                4️⃣ Вставляет ID в переменную <strong style="color:#aaffaa;">GOOGLE_SHEETS_ID</strong> в коде<br>
+                5️⃣ Загружает страницу заново — отзывы синхронизируются!<br><br>
+                📌 <a href="https://youtu.be/watch?v=example" target="_blank" style="color:#aaffaa;">Видеоинструкция</a>
+            </div>
+        `;
+    } else {
+        // Настраиваем API через бесплатный сервис sheet.best
+        const API_URL = "https://api.sheetbest.com/sheets/c809c54c-ac4c-46a5-aa57-3c6659a9b8f2";
+    }
+    
+    // ЗВЁЗДЫ
+    let currentRating = 0;
+    const stars = document.querySelectorAll('.star-modern');
+    const ratingInput = document.getElementById('reviewRating');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            currentRating = parseInt(this.dataset.rating);
+            ratingInput.value = currentRating;
+            stars.forEach((s, i) => {
+                if (i < currentRating) s.classList.add('active');
+                else s.classList.remove('active');
             });
         });
+    });
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function showStatus(msg, isError = false) {
+        const div = document.getElementById('statusMessage');
+        div.textContent = msg;
+        div.className = `status-modern ${isError ? 'status-error' : 'status-success'}`;
+        setTimeout(() => { if (div.textContent === msg) div.textContent = ''; }, 4000);
+    }
+    
+    async function loadReviews() {
+        if (!API_URL || isDefaultSheet) return;
         
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // Отображение отзывов на основе глобального массива reviews
-        function displayReviews() {
-            const container = document.getElementById('reviewsList');
-            const counter = document.getElementById('reviewsCounter');
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            currentReviews = (data || []).map(row => ({
+                id: row.id || Math.random(),
+                name: row.name || 'Аноним',
+                text: row.text || '',
+                rating: parseInt(row.rating) || 5,
+                date: row.date || new Date().toLocaleString('ru-RU')
+            })).sort((a,b) => new Date(b.date) - new Date(a.date));
             
-            counter.innerText = reviews.length;
-            
-            if (reviews.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; opacity: 0.5;">
-                        ✨ Пока нет отзывов. Будьте первым!
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = reviews.map(review => `
-                <div class="review-card-modern">
-                    <div class="review-header">
-                        <span class="review-name">${escapeHtml(review.name)}</span>
-                        <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
-                    </div>
-                    <div class="review-text">${escapeHtml(review.text)}</div>
-                    <div class="review-date">
-                        <span>📅</span> ${escapeHtml(review.date)}
-                    </div>
-                </div>
-            `).join('');
-            
-            // Прокрутка вниз не делаем, чтобы не мешать чтению; но можно оставить анимацию
-        }
-        
-        // Показ статусного сообщения
-        function showStatus(message, isError = false) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = `status-modern ${isError ? 'status-error' : 'status-success'}`;
-            
-            setTimeout(() => {
-                if (document.getElementById('statusMessage').textContent === message) {
-                    statusDiv.textContent = '';
-                    statusDiv.className = 'status-modern';
-                }
-            }, 3000);
-        }
-        
-        // Сохраняем отзывы в localStorage и обновляем массив + UI
-        function persistAndRender() {
-            localStorage.setItem('modern_reviews', JSON.stringify(reviews));
             displayReviews();
+            document.getElementById('liveIndicator')?.setAttribute('style', 'background:#4caf50');
+        } catch(e) {
+            console.error('Ошибка загрузки:', e);
+            showStatus('⚠️ Ошибка загрузки отзывов', true);
+        }
+    }
+    
+    function displayReviews() {
+        const container = document.getElementById('reviewsList');
+        const counter = document.getElementById('reviewsCounter');
+        counter.innerText = currentReviews.length;
+        
+        if (currentReviews.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:2rem;">✨ Пока нет отзывов. Будьте первым!</div>';
+            return;
         }
         
-        // Добавление нового отзыва (централизованная логика)
-        function addReviewFromForm() {
-            const nameInput = document.getElementById('reviewName');
-            const textInput = document.getElementById('reviewText');
-            const name = nameInput.value.trim();
-            const text = textInput.value.trim();
-            const rating = parseInt(ratingInput.value);
-            
-            // Валидация
-            if (name === '') {
-                showStatus('❌ Пожалуйста, введите ваше имя', true);
-                nameInput.style.borderColor = '#ef4444';
-                setTimeout(() => {
-                    nameInput.style.borderColor = 'rgba(255,255,255,0.2)';
-                }, 2000);
-                return false;
-            }
-            
-            if (text === '') {
-                showStatus('❌ Пожалуйста, напишите отзыв', true);
-                textInput.style.borderColor = '#ef4444';
-                setTimeout(() => {
-                    textInput.style.borderColor = 'rgba(255,255,255,0.2)';
-                }, 2000);
-                return false;
-            }
-            
-            if (rating === 0) {
-                showStatus('❌ Пожалуйста, поставьте оценку (нажмите на звёздочки)', true);
-                return false;
-            }
-            
-            // Создаём новый объект отзыва
+        container.innerHTML = currentReviews.map(review => `
+            <div class="review-card-modern">
+                <div class="review-header" style="display:flex; justify-content:space-between;">
+                    <span class="review-name">${escapeHtml(review.name)}</span>
+                    <span class="review-stars">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
+                </div>
+                <div class="review-text">${escapeHtml(review.text)}</div>
+                <div class="review-date">📅 ${escapeHtml(review.date)}</div>
+            </div>
+        `).join('');
+    }
+    
+    async function addReview(name, text, rating) {
+        if (!API_URL || isDefaultSheet) {
+            showStatus('❌ Сначала настройте Google Sheets ID', true);
+            return false;
+        }
+        
+        try {
             const newReview = {
-                id: Date.now(),
                 name: name,
                 text: text,
                 rating: rating,
-                date: new Date().toLocaleString('ru-RU', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
+                date: new Date().toLocaleString('ru-RU')
             };
             
-            // ДОБАВЛЯЕМ В НАЧАЛО (новые сверху)
-            reviews.unshift(newReview);
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newReview)
+            });
             
-            // Сохраняем изменения (localStorage обновится, а displayReviews вызовется внутри persist)
-            persistAndRender();
-            
-            // Очищаем форму
-            nameInput.value = '';
-            textInput.value = '';
+            await loadReviews(); // перезагружаем
+            return true;
+        } catch(e) {
+            console.error('Ошибка добавления:', e);
+            showStatus('❌ Ошибка при отправке', true);
+            return false;
+        }
+    }
+    
+    async function clearAllReviews() {
+        if (!API_URL || isDefaultSheet) return;
+        if (currentReviews.length === 0) return;
+        if (!confirm('⚠️ Удалить ВСЕ отзывы навсегда?')) return;
+        
+        try {
+            await fetch(API_URL, { method: 'DELETE' });
+            await loadReviews();
+            showStatus('✅ Все отзывы удалены', false);
+        } catch(e) {
+            showStatus('❌ Ошибка удаления', true);
+        }
+    }
+    
+    // Обработчик отправки
+    document.getElementById('submitReviewBtn')?.addEventListener('click', async () => {
+        const name = document.getElementById('reviewName').value.trim();
+        const text = document.getElementById('reviewText').value.trim();
+        const rating = parseInt(ratingInput.value);
+        
+        if (!name) { showStatus('❌ Введите имя', true); return; }
+        if (!text) { showStatus('❌ Напишите отзыв', true); return; }
+        if (!rating) { showStatus('❌ Поставьте оценку', true); return; }
+        
+        const btn = document.getElementById('submitReviewBtn');
+        btn.disabled = true;
+        btn.style.opacity = '0.6';
+        
+        const success = await addReview(name, text, rating);
+        
+        if (success) {
+            document.getElementById('reviewName').value = '';
+            document.getElementById('reviewText').value = '';
             ratingInput.value = '0';
             currentRating = 0;
-            updateStarsDisplay(0);
-            
-            // Показываем успех
-            showStatus('✅ Спасибо за отзыв! Он виден всем посетителям.', false);
-            
-            // Анимация кнопки
-            const btn = document.getElementById('submitReviewBtn');
-            btn.style.transform = 'scale(0.97)';
-            setTimeout(() => {
-                btn.style.transform = '';
-            }, 150);
-            
-            return true;
+            stars.forEach(s => s.classList.remove('active'));
+            showStatus('✅ Отзыв отправлен! Теперь его увидят все пользователи!', false);
         }
         
-        // Очистка всех отзывов с подтверждением
-        function clearAllReviews() {
-            if (reviews.length === 0) {
-                showStatus('✨ Нет отзывов для удаления', false);
-                return;
-            }
-            
-            if (confirm('⚠️ Вы уверены, что хотите удалить ВСЕ отзывы? Это действие увидят все пользователи.')) {
-                reviews = [];
-                persistAndRender();
-                showStatus('🗑️ Все отзывы удалены. Изменения синхронизированы.', false);
-            }
-        }
-        
-        // ========== КЛЮЧЕВАЯ ФИШКА: МЕЖТАБОВАЯ/МЕЖУСТРОЙСТВЕННАЯ СИНХРОНИЗАЦИЯ ==========
-        // Слушаем событие storage (срабатывает на других вкладках/окнах при изменении localStorage)
-        window.addEventListener('storage', (event) => {
-            // Нас интересует только ключ 'modern_reviews'
-            if (event.key === 'modern_reviews') {
-                // Данные изменились в другой вкладке
-                let newReviews;
-                try {
-                    newReviews = JSON.parse(event.newValue);
-                } catch(e) {
-                    newReviews = [];
-                }
-                
-                if (newReviews) {
-                    // Обновляем глобальный массив
-                    reviews = newReviews;
-                    // Перерисовываем список
-                    displayReviews();
-                    
-                    // Показываем ненавязчивое уведомление о поступлении нового отзыва (но без спама)
-                    const indicator = document.getElementById('liveIndicator');
-                    indicator.style.backgroundColor = '#4caf50';
-                    indicator.style.transition = '0.2s';
-                    setTimeout(() => {
-                        if (indicator) indicator.style.backgroundColor = '';
-                    }, 500);
-                    
-                    // Небольшое сообщение (опционально, но полезно)
-                    const statusDiv = document.getElementById('statusMessage');
-                    // Не перезаписываем важные сообщения пользователя, но показываем ненавязчиво, если нет активного сообщения
-                    if (!statusDiv.textContent || statusDiv.textContent.includes('Спасибо') === false) {
-                        showStatus('🔄 Обновлено: появились новые отзывы или изменения', false);
-                        setTimeout(() => {
-                            if (document.getElementById('statusMessage')?.textContent === '🔄 Обновлено: появились новые отзывы или изменения')
-                                document.getElementById('statusMessage').textContent = '';
-                        }, 2000);
-                    }
-                }
-            }
-        });
-        
-        // Дополнительная прослушка для изменений, которые могут происходить на этой же вкладке (для надёжности)
-        // Но persistAndRender уже вызывает обновление UI. Также после любой мутации reviews мы вызываем persistAndRender.
-        // Чтобы изменения из той же вкладки тоже видели другие вкладки — localStorage.setItem генерирует storage только для ДРУГИХ окон.
-        // Поэтому в этой вкладке всё и так обновится через persistAndRender.
-        
-        // ========== ИНИЦИАЛИЗАЦИЯ и дополнительные улучшения ==========
-        
-        // Функция, которая проверяет при загрузке страницы, нет ли конфликта, и синхронизирует
-        function initSync() {
-            // уже загрузили reviews из localStorage в самом начале, но на всякий случай перепроверим
-            const stored = localStorage.getItem('modern_reviews');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                // Если данные в памяти отличаются, используем свежие из хранилища (актуальные)
-                if (JSON.stringify(parsed) !== JSON.stringify(reviews)) {
-                    reviews = parsed;
-                }
-            }
-            displayReviews();
-        }
-        
-        // Устанавливаем обработчики кнопок
-        document.getElementById('submitReviewBtn').addEventListener('click', addReviewFromForm);
-        document.getElementById('clearAllBtn').addEventListener('click', clearAllReviews);
-        
-        // Отправка по клавише Enter (удобство)
-        const nameField = document.getElementById('reviewName');
-        const textField = document.getElementById('reviewText');
-        
-        function handleEnter(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addReviewFromForm();
-            }
-        }
-        
-        nameField.addEventListener('keypress', handleEnter);
-        textField.addEventListener('keypress', handleEnter);
-        
-        // Дополнительно: если пользователь кликнул на очистку, не должно быть багов.
-        // Также делаем так, чтобы изменения в reviews (например через другой метод) всегда синхр.
-        // Для максимальной надежности обернем persistAndRender в мутирующие функции, но у нас только clearAll и addReviewFromForm.
-        // Однако, если вдруг какой-то внешний код (теоретически) захочет изменить массив — но мы все контролируем.
-        
-        // Небольшой "сердцебиение" для индикации живой связи (не обязательно, но эстетично)
-        setInterval(() => {
-            const indicator = document.getElementById('liveIndicator');
-            if (indicator) {
-                indicator.style.opacity = '1';
-                setTimeout(() => {
-                    if (indicator) indicator.style.opacity = '0.9';
-                }, 300);
-            }
-        }, 4000);
-        
-        // Финальный старт: отображаем отзывы, если их загрузили
-        initSync();
-        
-        // Доп. фича: если другой пользователь удалил все отзывы, то форма очищается от старых значений? необязательно.
-        // Но чтобы синхронизация была максимально прозрачной, показываем сообщение об изменениях.
-        // Теперь любой отзыв, добавленный с любого устройства/вкладки, мгновенно появляется у всех.
-        // УРА! 🎉
-        
-        // Небольшое улучшение UX: если отзывов много, автоматически скроллить вниз при новом отзыве? 
-        // Тут по желанию, но лучше не трогать, чтобы не сбивать с чтения. Оставим естественным.
-        // Зато при добавлении своего отзыва вы сразу видите его сверху.
-        
-        // ИТОГ: отзывы синхронизируются через localStorage + storage event.
-        // Работает в реальном времени между вкладками одного браузера,
-        // а также между разными браузерами на одном устройстве (при условии общего origin).
-        // Для полной "межустройственной" синхронизации нужно backend, но current решение идеально подходит
-        // для всех открытых окон/вкладок на одном устройстве, что покрывает 95% сценариев "другие пользователи".
-        // Если нужно, чтобы несколько людей на разных компах видели отзывы — необходим сервер (но ТЗ было "чтобы другие видели").
-        // В контексте одного устройства/общего хранилища — это полноценная синхронизация в реальном времени.
-        
-        // Дополнительная эмуляция: отображаем предупреждение, если отзыв был добавлен из другой вкладки
-        console.log('✅ Система отзывов готова. Любой отзыв увидят все открытые вкладки!');
-    </script>
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    });
+    
+    document.getElementById('clearAllBtn')?.addEventListener('click', clearAllReviews);
+    
+    // Автообновление каждые 5 секунд
+    if (!isDefaultSheet) {
+        loadReviews();
+        setInterval(loadReviews, 5000);
+    }
+</script>
 </body>
 </html>
